@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.0 
+ * VideoControls v1.1
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -23,26 +23,29 @@
 		};
 		options = $.extend(defaults, options);
 
-		var loaded        = false;
-		var $video        = $(this);
-		var $video_parent = null;
-		var volume        = 0.75;
-		var buffered      = 0;
-		var lastX         = 0;
-		var mediumscreen  = false;
-		var fullscreen    = false;
+		var isTouch        = 'ontouchstart' in window || 'onmsgesturechange' in window;
+		var loaded         = false;
+		var $video         = $(this);
+		var $video_parent  = null;
+		var volume         = 0.75;
+		var buffered       = 0;
+		var lastX          = 0;
+		var lastMove       = 0;
+		var timerHover     = null;
+		var mediumscreen   = false;
+		var exitFullscreen = false;
 
-		if (localStorage.getItem('videocontrols-muted') === null)
+		if (localStorageGetItem('videocontrols-muted') === null)
 		{
-			localStorage.setItem('videocontrols-muted', '0');
+			localStorageSetItem('videocontrols-muted', '0');
 		}
-		$video[0].muted = localStorage.getItem('videocontrols-muted') == '1' ? true : false;
+		$video[0].muted = localStorageGetItem('videocontrols-muted') == '1' ? true : false;
 
-		if (localStorage.getItem('videocontrols-volume') === null)
+		if (localStorageGetItem('videocontrols-volume') === null)
 		{
-			localStorage.setItem('videocontrols-volume', volume);
+			localStorageSetItem('videocontrols-volume', volume);
 		}
-		volume = localStorage.getItem('videocontrols-volume');
+		volume = localStorageGetItem('videocontrols-volume', volume);
 		$video[0].volume = volume;
 
 		this.preview_marker = function(seconds)
@@ -51,8 +54,11 @@
 
 			$video_parent.parent().find('.vc-player').addClass('hover');
 			$video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').addClass('light');
-			
-			displayPreview($video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').offset().left);
+
+			if (!$.isEmptyObject(options.preview))
+			{
+				displayPreview($video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').offset().left);
+			}
 
 			$video_parent.find('.videocontrols-preview-img').addClass('light');
 		};
@@ -106,13 +112,20 @@
 						'	</div>' +
 						'</div>');
 
-			$video_parent.parent().find('.vc-player').on('mouseenter', function ()
+			$video_parent.parent().find('.vc-player').on('mouseenter touchstart', function ()
 			{
+				clearTimeout(timerHover);
+
 				$(this).addClass('hover');
 			});
-			$video_parent.parent().find('.vc-player').on('mouseleave', function ()
+			$video_parent.parent().find('.vc-player').on('mouseleave touchend', function ()
 			{
-				$(this).removeClass('hover');
+				clearTimeout(timerHover);
+
+				timerHover = setTimeout(function ()
+				{
+					$video_parent.parent().find('.vc-player').removeClass('hover');
+				}, 2000);
 			});
 
 			$video.on('durationchange', function ()
@@ -183,61 +196,79 @@
 				}
 			});
 
-			$video_parent.find('.videocontrols-seeker').on('mousemove', function (e)
+			$video_parent.find('.videocontrols-seeker').on('mousemove touchmove', function (e)
 			{
-				if (Math.abs(lastX - e.clientX) > 3)
+				if (!$.isEmptyObject(options.preview))
 				{
-					lastX = e.clientX;
-
-					if ($video_parent.find('.videocontrols-preview').length == 0)
+					e.preventDefault();
+					e.stopPropagation();
+	
+					var clientX = getClientX(e);
+					if (Math.abs(lastX - clientX) > 3)
 					{
-						$(document).on('mousemove', seeker_move);
+						lastX = clientX;
+	
+						if ($video_parent.find('.videocontrols-preview').length === 0)
+						{
+							$(document).on('mousemove touchmove', seeker_move);
+						}
+						displayPreview(clientX);
 					}
-
-					displayPreview(e.clientX);
 				}
 			});
 
 			function seeker_move(e)
 			{
-				var minX = Math.min($video_parent.find('.videocontrols-seeker').offset().left, $video_parent.find('.videocontrols-preview').offset().left);
-				var minY = Math.min($video_parent.find('.videocontrols-preview').offset().top, $video_parent.find('.videocontrols-seeker').offset().top);
-				var maxX = Math.max($video_parent.find('.videocontrols-seeker').offset().left + $video_parent.find('.videocontrols-seeker').width(), $video_parent.find('.videocontrols-preview').offset().left + $video_parent.find('.videocontrols-preview').width());
-				var maxY = $video_parent.find('.videocontrols-seeker').offset().top + $video_parent.find('.videocontrols-seeker').height();
-				if (e.pageX < minX || e.pageX > maxX || e.pageY < minY || e.pageY > maxY)
+				if ($video_parent.find('.videocontrols-seeker').length > 0 && $video_parent.find('.videocontrols-preview').length > 0)
 				{
-					$(document).off('mousemove', seeker_move);
-
-					$video_parent.find('.videocontrols-preview').remove();
+					var minX = Math.min($video_parent.find('.videocontrols-seeker').offset().left, $video_parent.find('.videocontrols-preview').offset().left);
+					var minY = Math.min($video_parent.find('.videocontrols-preview').offset().top, $video_parent.find('.videocontrols-seeker').offset().top);
+					var maxX = Math.max($video_parent.find('.videocontrols-seeker').offset().left + $video_parent.find('.videocontrols-seeker').width(), $video_parent.find('.videocontrols-preview').offset().left + $video_parent.find('.videocontrols-preview').width());
+					var maxY = $video_parent.find('.videocontrols-seeker').offset().top + $video_parent.find('.videocontrols-seeker').height();
+					if (e.pageX < minX || e.pageX > maxX || e.pageY < minY || e.pageY > maxY)
+					{
+						$(document).off('mousemove touchmove', seeker_move);
+	
+						$video_parent.find('.videocontrols-preview').remove();
+					}
 				}
 			}
 
 			$video_parent.find('.videocontrols-seeker').on('click', function (e)
 			{
 				e.preventDefault();
+				e.stopPropagation();
 
-				var left = e.clientX - $video_parent.find('.videocontrols-seeker').offset().left;
+				var clientX = getClientX(e);
+
+				var left = clientX - $video_parent.find('.videocontrols-seeker').offset().left;
 				left     = Math.max(0, left);
 				left     = Math.min($video_parent.find('.videocontrols-seeker').width(), left);
 				$video.off('timeupdate', timeupdate);
 				$video_parent.find('.videocontrols-seekbar').animate({ left: left }, 150, 'linear', function ()
 				{
-					seekbar_up({ clientX: e.clientX });
+					seekbar_up(clientX);
 				});
 			});
 
-			$video_parent.find('.videocontrols-seekbar').on('mousedown', function (e)
+			$video_parent.find('.videocontrols-seekbar').on('mousedown touchstart', function (e)
 			{
 				e.preventDefault();
-				$(document).one('mouseup', seekbar_up);
+
+				$(document).one('mouseup touchend', seekbar_up);
 
 				$video.off('timeupdate', timeupdate);
-				$(document).on('mousemove', seekbar_move);
+				$(document).on('mousemove touchmove', seekbar_move);
 			});
 
 			function seekbar_move(e)
 			{
-				var left = e.clientX - $video_parent.find('.videocontrols-seeker').offset().left;
+				e.preventDefault();
+				e.stopPropagation();
+
+				var clientX = getClientX(e);
+
+				var left = clientX - $video_parent.find('.videocontrols-seeker').offset().left;
 				left     = Math.max(0, left);
 				left     = Math.min($video_parent.find('.videocontrols-seeker').width(), left);
 				$video_parent.find('.videocontrols-seekbar').css('left', left);
@@ -245,8 +276,16 @@
 
 			function seekbar_up(e)
 			{
-				$(document).off('mousemove', seekbar_move);
-				$video[0].currentTime = (e.clientX - $video_parent.find('.videocontrols-seeker').offset().left) / $video_parent.find('.videocontrols-seeker').width() * $video[0].duration;
+				if (!$.isNumeric(e))
+				{
+					e.preventDefault();
+					e.stopPropagation();
+				}
+
+				var clientX = getClientX(e);
+
+				$(document).off('mousemove touchmove', seekbar_move);
+				$video[0].currentTime = (clientX - $video_parent.find('.videocontrols-seeker').offset().left) / $video_parent.find('.videocontrols-seeker').width() * $video[0].duration;
 				$video.on('timeupdate', timeupdate);
 				$video_parent.find('.videocontrols-preview').remove();
 			}
@@ -289,51 +328,48 @@
 				if (!$video[0].muted)
 				{
 					$video[0].muted = true;
-					localStorage.setItem('videocontrols-muted', '1');
+					localStorageSetItem('videocontrols-muted', '1');
 				}
 				else
 				{
 					$video[0].muted = false;
-					localStorage.setItem('videocontrols-muted', '0');
+					localStorageSetItem('videocontrols-muted', '0');
 				}
 			});
 
 			$video_parent.find('.videocontrols-weight-volume').on('click', function (e)
 			{
-				e.preventDefault();
-
-				var left = e.clientX - $video_parent.find('.videocontrols-volume').offset().left;
-				volume_move({ clientX: e.clientX });
+				volume_move(e);
 			});
 
-			$video_parent.find('.videocontrols-volumebar').on('mousedown', function (e)
+			$video_parent.find('.videocontrols-volumebar').on('mousedown touchstart', function (e)
 			{
 				e.preventDefault();
 
-				$(document).one('mouseup', volume_up);
-				$(document).on('mousemove', volume_move);
+				$(document).one('mouseup touchend', volume_up);
+				$(document).on('mousemove touchmove', volume_move);
 			});
 
 			function volume_move(e)
 			{
-				if (Math.abs(lastX - e.clientX) > 3)
-				{
-					lastX = e.clientX;
+				e.preventDefault();
+				e.stopPropagation();
 
-					volume = (e.clientX - $video_parent.find('.videocontrols-volume').offset().left) / $video_parent.find('.videocontrols-volume').width();
-					volume = Math.max(0, volume);
-					volume = Math.min(1, volume);
-					$video[0].muted = false;
-					$video[0].volume = volume;
+				var clientX = getClientX(e);
 
-					localStorage.setItem('videocontrols-muted', '1');
-					localStorage.setItem('videocontrols-volume', volume);
-				}
+				volume = (clientX - $video_parent.find('.videocontrols-volume').offset().left) / $video_parent.find('.videocontrols-volume').width();
+				volume = Math.max(0, volume);
+				volume = Math.min(1, volume);
+				$video[0].muted = false;
+				$video[0].volume = volume;
+
+				localStorageSetItem('videocontrols-muted', '0');
+				localStorageSetItem('videocontrols-volume', volume);
 			}
 
 			function volume_up(e)
 			{
-				$(document).off('mousemove', volume_move);
+				$(document).off('mousemove touchmove', volume_move);
 			}
 
 			$video_parent.find('.videocontrols-mediumscreen').on('click', function (e)
@@ -361,48 +397,34 @@
 				e.preventDefault();
 
 				var DOMVideo = $video_parent.get(0);
-				if (!fullscreen)
+
+				var requestFullScreen = DOMVideo.requestFullscreen || DOMVideo.webkitRequestFullscreen || DOMVideo.mozRequestFullScreen || DOMVideo.msRequestFullscreen;
+				var cancelFullScreen  = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+
+				if(!exitFullscreen && !document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement)
 				{
-					if (DOMVideo.requestFullscreen)
-					{
-						DOMVideo.requestFullscreen();
-					}
-					else if (DOMVideo.webkitRequestFullscreen)
-					{
-						DOMVideo.webkitRequestFullscreen();
-					}
-					else if (DOMVideo.mozRequestFullscreen)
-					{
-						DOMVideo.mozRequestFullscreen();
-					}
-					fullscreen = true;
+					requestFullScreen.call(DOMVideo);
+
 					$video_parent.addClass('player-fullscreen');
 					$video_parent.find('.videocontrols-fullscreen').removeClass('vc-icon-expand').addClass('vc-icon-contract');
 
-					$(window).on('resize', fullscreenResize);
 					window.setTimeout(function ()
 					{
-						$(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange', fullscreenChange);
+						$(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange', fullscreenChange);
 					}, 500);
+
+					$(document).on('mousemove touchmove', fullscreenMove);
 				}
 				else
 				{
-					$(document).off('fullscreenchange webkitfullscreenchange mozfullscreenchange', fullscreenChange);
-					$(window).off('resize', fullscreenResize);
+					exitFullscreen = false;
 
-					if (document.cancelFullScreen)
-					{
-						document.cancelFullScreen();
-					}
-					else if (document.webkitCancelFullScreen)
-					{
-						document.webkitCancelFullScreen();
-					}
-					else if (document.mozCancelFullScreen)
-					{
-						document.mozCancelFullScreen();
-					}
-					fullscreen = false;
+					$(document).off('mousemove touchmove', fullscreenMove);
+
+					$(document).off('fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange', fullscreenChange);
+
+					cancelFullScreen.call(document);
+
 					$video_parent.removeClass('player-fullscreen');
 					$video_parent.find('.videocontrols-fullscreen').removeClass('vc-icon-contract').addClass('vc-icon-expand');
 
@@ -410,13 +432,24 @@
 				}
 			});
 
-			function fullscreenResize()
+			function fullscreenMove()
 			{
-				$video_parent.find('video').css('height', $(window).height() - 28);
+				if (!$video_parent.parent().find('.vc-player').hasClass('hover'))
+				{
+					$video_parent.parent().find('.vc-player').addClass('hover');
+				}
+				clearTimeout(timerHover);
+
+				timerHover = setTimeout(function ()
+				{
+					$video_parent.parent().find('.vc-player').removeClass('hover');
+				}, 2000);
 			}
-	
+
 			function fullscreenChange()
 			{
+				exitFullscreen = true;
+
 				$video_parent.find('.videocontrols-fullscreen').trigger('click');
 			}
 
@@ -444,6 +477,50 @@
 				'			</div>' +
 				'			<div class="videocontrols-preview-connection" style="margin-left: ' + (position - left - $video_parent.find('.videocontrols-seeker').offset().left + (options.preview.width / 2)) + 'px"></div>' +
 				'		</div>');
+		}
+
+		function getClientX(e)
+		{
+			var clientX = 0;
+			if ($.isNumeric(e))
+			{
+				clientX = e;
+			}
+			else if ($.isNumeric(e.clientX))
+			{
+				clientX = $(document).scrollLeft() + e.clientX;
+			}
+			else if (isTouch)
+			{
+				clientX = e.originalEvent.pageX + e.originalEvent.targetTouches[0].clientX;
+			}
+			return clientX;
+		}
+
+		function localStorageGetItem(key, defaultValue)
+		{
+			var result = null;
+			if (!!window.localStorage)
+			{
+				result = localStorage.getItem(key);
+			}
+			if (result === null)
+			{
+				result = defaultValue;
+			}
+			return result;
+		}
+
+		function localStorageSetItem(key, value)
+		{
+			if (!!window.localStorage)
+			{
+				try
+				{
+					localStorage.setItem(key, value);
+				}
+				catch (e) { }
+			}
 		}
 
 		function secondsToTime(value)
