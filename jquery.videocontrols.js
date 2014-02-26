@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.1
+ * VideoControls v1.2
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -24,6 +24,7 @@
 		options = $.extend(defaults, options);
 
 		var isTouch        = 'ontouchstart' in window || 'onmsgesturechange' in window;
+		var isSupported    = /chrome|firefox|trident/i.test(navigator.userAgent.toLowerCase());
 		var loaded         = false;
 		var $video         = $(this);
 		var $video_parent  = null;
@@ -72,6 +73,11 @@
 
 		return this.each(function ()
 		{
+			if (!isSupported)
+			{
+				return false;
+			}
+
 			function load()
 			{
 				$video_parent.find('.videocontrols-tag').remove();
