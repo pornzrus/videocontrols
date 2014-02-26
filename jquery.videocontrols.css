@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.1
+ * VideoControls v1.2
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -11,13 +11,13 @@
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	background-image: url(videocontrols444444.png);
+	background-image: url(images/videocontrols444444.png);
 	background-repeat: no-repeat;
 }
 
 [class*="vc-icon-"]:hover
 {
-	background-image: url(videocontrols777777.png);
+	background-image: url(images/videocontrols777777.png);
 }
 
 .vc-icon-play
