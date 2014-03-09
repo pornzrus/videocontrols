@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.2
+ * VideoControls v1.3
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -11,13 +11,13 @@
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	background-image: url(images/videocontrols444444.png);
+	background-image: url(videocontrols444444.png);
 	background-repeat: no-repeat;
 }
 
 [class*="vc-icon-"]:hover
 {
-	background-image: url(images/videocontrols777777.png);
+	background-image: url(videocontrols777777.png);
 }
 
 .vc-icon-play
@@ -85,6 +85,16 @@
 	background-position: -331px 0;
 }
 
+.vc-icon-expand3 
+{
+	background-position: -361px 0;
+}
+
+.vc-icon-contract3 
+{
+	background-position: -391px 0;
+}
+
 .player-fullscreen
 {
 	width: 100% !important;
@@ -94,7 +104,7 @@
 	overflow: hidden !important;
 }
 
-.player-fullscreen > .player
+.player-fullscreen > video
 {
 	width: 100% !important;
 	height: 100% !important;
@@ -115,15 +125,27 @@
 	bottom: -30px !important;
 }
 
+.player-fillscreen > video
+{
+	width: 100% !important;
+	height: 100% !important;
+}
+
 .player-mediumscreen
 {
-	width: 1200px !important;
+	width: 1050px !important;
 	margin: 0 auto !important;
 	position: relative !important;
 	line-height: 0 !important;
 	border: 2px solid #000000 !important;
 	background: black !important;
 	text-align: center !important;
+}
+
+.player-mediumscreen > video
+{
+	width: 100% !important;
+	height: 100% !important;
 }
 
 .videocontrols
@@ -470,6 +492,11 @@
 	width : 5px;
 	background-color : #eaeaea;
 	margin: -8px 0 0 -2.5px;
+}
+
+.videocontrols-fillscreen
+{
+	margin: 0;
 }
 
 .videocontrols-mediumscreen

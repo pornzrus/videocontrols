@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.2
+ * VideoControls v1.3
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -33,6 +33,7 @@
 		var lastX          = 0;
 		var lastMove       = 0;
 		var timerHover     = null;
+		var fillscreen     = false;
 		var mediumscreen   = false;
 		var exitFullscreen = false;
 
@@ -112,8 +113,9 @@
 						'					<div class="videocontrols-volumebar videocontrols-volume-range"></div>' +
 						'				</div>' +
 						'			</div>' +
-						'			<div class="videocontrols-mediumscreen videocontrols-button vc-icon-expand2" title="Medium player"></div>' +
-						'			<div class="videocontrols-fullscreen videocontrols-button vc-icon-expand"></div>' +
+						'			<div class="videocontrols-fillscreen videocontrols-button vc-icon-expand3" title="Fill video"></div>' +
+						'			<div class="videocontrols-mediumscreen videocontrols-button vc-icon-expand2" title="Mediumscreen"></div>' +
+						'			<div class="videocontrols-fullscreen videocontrols-button vc-icon-expand" title="Fullscreen"></div>' +
 						'		</div>' +
 						'	</div>' +
 						'</div>');
@@ -144,8 +146,17 @@
 				$video_parent.find('.videocontrols-totaltime').html(' / ' + secondsToTime($video[0].duration));
 			});
 
-			$video.on('progress canplaythrough loadedmetadata loadeddata', function ()
+			$video.on('progress canplaythrough loadedmetadata loadeddata', function (e)
 			{
+				if (!$video.attr('height') && this.videoHeight > 0)
+				{
+					$video.attr('height', this.videoHeight);
+				}
+				if (!$video.attr('width') && this.videoWidth > 0)
+				{
+					$video.attr('width', this.videoWidth);
+				}
+
 				if ($video[0].buffered && $video[0].buffered.length > 0)
 				{
 					for (var i = 0; i < $video[0].buffered.length; i++)
@@ -378,6 +389,26 @@
 				$(document).off('mousemove touchmove', volume_move);
 			}
 
+			$video_parent.find('.videocontrols-fillscreen').on('click', function (e)
+			{
+				e.preventDefault();
+
+				if (!fillscreen)
+				{
+					fillscreen = true;
+
+					$video_parent.addClass('player-fillscreen');
+					$video_parent.find('.videocontrols-fillscreen').removeClass('vc-icon-expand3').addClass('vc-icon-contract3');
+				}
+				else
+				{
+					fillscreen = false;
+
+					$video_parent.removeClass('player-fillscreen');
+					$video_parent.find('.videocontrols-fillscreen').removeClass('vc-icon-contract3').addClass('vc-icon-expand3');
+				}
+			});
+
 			$video_parent.find('.videocontrols-mediumscreen').on('click', function (e)
 			{
 				e.preventDefault();
@@ -388,6 +419,7 @@
 
 					$video_parent.addClass('player-mediumscreen');
 					$video_parent.find('.videocontrols-mediumscreen').removeClass('vc-icon-expand2').addClass('vc-icon-contract2');
+					$video_parent.find('.videocontrols-fillscreen').hide();
 				}
 				else
 				{
@@ -395,6 +427,7 @@
 
 					$video_parent.removeClass('player-mediumscreen');
 					$video_parent.find('.videocontrols-mediumscreen').removeClass('vc-icon-contract2').addClass('vc-icon-expand2');
+					$video_parent.find('.videocontrols-fillscreen').show();
 				}
 			});
 
@@ -409,10 +442,17 @@
 
 				if(!exitFullscreen && !document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement)
 				{
+					if (mediumscreen)
+					{
+						$video_parent.find('.videocontrols-mediumscreen').trigger('click');
+					}
+
 					requestFullScreen.call(DOMVideo);
 
 					$video_parent.addClass('player-fullscreen');
 					$video_parent.find('.videocontrols-fullscreen').removeClass('vc-icon-expand').addClass('vc-icon-contract');
+					$video_parent.find('.videocontrols-fillscreen').hide();
+					$video_parent.find('.videocontrols-mediumscreen').hide();
 
 					window.setTimeout(function ()
 					{
@@ -433,6 +473,8 @@
 
 					$video_parent.removeClass('player-fullscreen');
 					$video_parent.find('.videocontrols-fullscreen').removeClass('vc-icon-contract').addClass('vc-icon-expand');
+					$video_parent.find('.videocontrols-fillscreen').show();
+					$video_parent.find('.videocontrols-mediumscreen').show();
 
 					$video_parent.find('video').css('height', '');
 				}
