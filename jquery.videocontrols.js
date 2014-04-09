@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.3
+ * VideoControls v1.4
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -11,15 +11,31 @@
 	$.fn.videocontrols = function(options)
 	{
 		var defaults = {
+			mode: '',
 			markers: [],
 			preview: {
-				
+/*
+				sprites: ['sprites1', 'sprites2'],
+				step: 10,
+				width: 200,
+				wide: 60000
+*/
 			},
 			theme: {
 				progressbar: 'blue',
 				range: 'pink',
 				volume: 'pink'
-			}
+			},
+			durationchange: null,
+			end: null,
+			fillscreenchange: null,
+			fullscreenchange: null,
+			load: null,
+			mediumscreenchange: null,
+			pause: null,
+			play: null,
+			seekchange: null,
+			volumechange: null
 		};
 		options = $.extend(defaults, options);
 
@@ -49,6 +65,26 @@
 		}
 		volume = localStorageGetItem('videocontrols-volume', volume);
 		$video[0].volume = volume;
+
+		this.fillscreenToggle = function()
+		{
+			$video_parent.find('.videocontrols-fillscreen').trigger('click');
+		};
+
+		this.fullscreenToggle = function()
+		{
+			$video_parent.find('.videocontrols-fullscreen').trigger('click');
+		};
+
+		this.mediumscreenToggle = function()
+		{
+			$video_parent.find('.videocontrols-mediumscreen').trigger('click');
+		};
+
+		this.playToggle = function()
+		{
+			$video_parent.find('.videocontrols-play').trigger('click');
+		};
 
 		this.preview_marker = function(seconds)
 		{
@@ -86,6 +122,11 @@
 				{
 					var pourcent = options.markers[i] * 100 / $video[0].duration;
 					$video_parent.find('.videocontrols-seeker').append('<div class="videocontrols-tag" style="left : ' + pourcent + '%;" tag="' + options.markers[i] + '"></div>');
+				}
+
+				if (options.load)
+				{
+					options.load($(this));
 				}
 			}
 
@@ -144,6 +185,11 @@
 					load();
 				}
 				$video_parent.find('.videocontrols-totaltime').html(' / ' + secondsToTime($video[0].duration));
+
+				if (options.durationchange)
+				{
+					options.durationchange($(this));
+				}
 			});
 
 			$video.on('progress canplaythrough loadedmetadata loadeddata', function (e)
@@ -196,6 +242,11 @@
 			{
 				$video[0].currentTime = 0;
 				$video[0].pause();
+
+				if (options.end)
+				{
+					options.end($(this));
+				}
 			});
 
 			$video_parent.find('.videocontrols-play').on('click', function (e)
@@ -206,10 +257,20 @@
 				{
 					$video_parent.find('.videocontrols-play').removeClass('vc-icon-pause').addClass('vc-icon-play');
 					$video[0].pause();
+
+					if (options.pause)
+					{
+						options.pause($(this));
+					}
 				}
 				else
 				{
 					$video[0].play();
+
+					if (options.play)
+					{
+						options.play($(this));
+					}
 				}
 			});
 
@@ -247,6 +308,11 @@
 						$(document).off('mousemove touchmove', seeker_move);
 	
 						$video_parent.find('.videocontrols-preview').remove();
+					}
+
+					if (options.seekchange)
+					{
+						options.seekchange($(this));
 					}
 				}
 			}
@@ -336,6 +402,11 @@
 				{
 					$video_parent.find('.videocontrols-mute').addClass('vc-icon-volume-mute');
 				}
+
+				if (options.volumechange)
+				{
+					options.volumechange($(this));
+				}
 			}
 
 			$video_parent.find('.videocontrols-mute').on('click', function (e)
@@ -407,6 +478,11 @@
 					$video_parent.removeClass('player-fillscreen');
 					$video_parent.find('.videocontrols-fillscreen').removeClass('vc-icon-contract3').addClass('vc-icon-expand3');
 				}
+
+				if (options.fillscreenchange)
+				{
+					options.fillscreenchange($(this));
+				}
 			});
 
 			$video_parent.find('.videocontrols-mediumscreen').on('click', function (e)
@@ -428,6 +504,11 @@
 					$video_parent.removeClass('player-mediumscreen');
 					$video_parent.find('.videocontrols-mediumscreen').removeClass('vc-icon-contract2').addClass('vc-icon-expand2');
 					$video_parent.find('.videocontrols-fillscreen').show();
+				}
+
+				if (options.mediumscreenchange)
+				{
+					options.mediumscreenchange($(this));
 				}
 			});
 
@@ -477,6 +558,11 @@
 					$video_parent.find('.videocontrols-mediumscreen').show();
 
 					$video_parent.find('video').css('height', '');
+				}
+
+				if (options.fullscreenchange)
+				{
+					options.fullscreenchange($(this));
 				}
 			});
 

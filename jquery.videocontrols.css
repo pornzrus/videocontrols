@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.3
+ * VideoControls v1.4
  * 
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -146,6 +146,11 @@
 {
 	width: 100% !important;
 	height: 100% !important;
+}
+
+.vc-player
+{
+	text-align: center;
 }
 
 .videocontrols
@@ -349,7 +354,7 @@
 
 .videocontrols-progressbar
 {	
-	width: 0%;
+	width: 0;
 	height : 100%;
 	background-color : red;
 	display: inline-block;
@@ -375,7 +380,7 @@
 .videocontrols-seekbar
 {
 	position : absolute;
-	left : 0%;
+	left : 0;
 	z-index: 999;
 }
 
