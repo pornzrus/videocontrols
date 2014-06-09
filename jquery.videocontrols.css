@@ -1,6 +1,6 @@
 /*!
- * VideoControls v1.4
- * 
+ * VideoControls v1.5
+ *
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
  * http://blog.pornzrus.com/2014-01-25-HTML5-Video-Player-like-YouTube-in-jQuery-plugin
@@ -85,12 +85,12 @@
 	background-position: -331px 0;
 }
 
-.vc-icon-expand3 
+.vc-icon-expand3
 {
 	background-position: -361px 0;
 }
 
-.vc-icon-contract3 
+.vc-icon-contract3
 {
 	background-position: -391px 0;
 }
@@ -166,10 +166,10 @@
 	position : relative;
 	background-color : #1B1B1B;
 
-	-moz-user-select: none; 
-	-khtml-user-select: none; 
-	-webkit-user-select: none; 
-	-o-user-select: none; 
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
 }
 
 .videocontrols-seeker
@@ -183,7 +183,7 @@
 	margin: 0;
 	cursor : pointer;
 	display: inline-block;
-	
+
 	-o-transition-property: height 0.25s linear, top 0.25s linear;
 	-ms-transition-property: height 0.25s linear, top 0.25s linear;
 	-moz-transition-property: height 0.25s linear, top 0.25s linear;
@@ -212,7 +212,7 @@
 .videocontrols-tag
 {
 	height : 0;
-	
+
 	-o-transition-property: height 0.2s linear;
 	-ms-transition-property: height 0.2s linear;
 	-moz-transition-property: height 0.2s linear;
@@ -226,7 +226,7 @@
 	width : 4px;
 	background-color : #1b1b1b;
 	z-index: 100;
-	
+
 	position : absolute;
 	bottom : 0;
 	margin-left : -2px;
@@ -253,8 +253,8 @@
 
 .vc-player >.videocontrols >.videocontrols-seeker >.videocontrols-preview >.videocontrols-preview-connection
 {
-	width: 0; 
-	height: 0; 
+	width: 0;
+	height: 0;
 	border-left: 5px solid transparent;
 	border-right: 5px solid transparent;
 	border-top: 5px solid #1b1b1b;
@@ -288,7 +288,7 @@
 	margin: 0;
 	line-height : 0;
 	text-align: center;
-	
+
 	-o-transition-property: height 0.25s linear, width 0.25s linear, margin 0.25s linear, line-height 0.25s linear;
 	-ms-transition-property: height 0.25s linear, width 0.25s linear, margin 0.25s linear, line-height 0.25s linear;
 	-moz-transition-property: height 0.25s linear, width 0.25s linear, margin 0.25s linear, line-height 0.25s linear;
@@ -311,10 +311,10 @@
 	height : 0;
 	width : 0;
 	opacity : 0;
-	
+
 	display : inline-block;
 	vertical-align : middle;
-	
+
 	-o-transition-property: height 0.25s linear, width 0.25s linear, opacity 0s linear 0.2s;
 	-ms-transition-property: height 0.25s linear, width 0.25s linear, opacity 0s linear 0.2s;
 	-moz-transition-property: height 0.25s linear, width 0.25s linear, opacity 0s linear 0.2s;
@@ -353,7 +353,7 @@
 }
 
 .videocontrols-progressbar
-{	
+{
 	width: 0;
 	height : 100%;
 	background-color : red;
@@ -361,7 +361,7 @@
 	position : absolute;
 	top : 0;
 	left : 0;
-		
+
 	-webkit-background-size: 30px 30px !important;
 	-moz-background-size: 30px 30px !important;
 	background-size: 30px 30px !important;
@@ -469,7 +469,7 @@
 {
 	height : 3px;
 	background-color : red;
-		
+
 	-webkit-background-size: 15px 15px !important;
 	-moz-background-size: 15px 15px !important;
 	background-size: 15px 15px !important;

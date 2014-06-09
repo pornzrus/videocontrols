@@ -1,6 +1,6 @@
 /*!
- * VideoControls v1.4
- * 
+ * VideoControls v1.5
+ *
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
  * http://blog.pornzrus.com/2014-01-25-HTML5-Video-Player-like-YouTube-in-jQuery-plugin
@@ -15,8 +15,9 @@
 			markers: [],
 			preview: {
 /*
-				sprites: ['sprites1', 'sprites2'],
-				step: 10,
+				sprites: ['sprites1.jpg', 'sprites2.jpg'],
+				step: 10,,
+				height: 112,
 				width: 200,
 				wide: 60000
 */
@@ -117,6 +118,23 @@
 
 			function load()
 			{
+				if (options.preview.sprites.length > 0)
+				{
+					var img = new Image()
+					img.onload = function ()
+					{
+						if (!options.preview.height)
+						{
+							options.preview.height = parseInt(this.height);
+						}
+						if (!options.preview.wide)
+						{
+							options.preview.wide = parseInt(this.width);
+						}
+					}
+					img.src = options.preview.sprites[0];
+				}
+
 				$video_parent.find('.videocontrols-tag').remove();
 				for (var i = 0; i < options.markers.length; i++)
 				{
@@ -280,12 +298,12 @@
 				{
 					e.preventDefault();
 					e.stopPropagation();
-	
+
 					var clientX = getClientX(e);
 					if (Math.abs(lastX - clientX) > 3)
 					{
 						lastX = clientX;
-	
+
 						if ($video_parent.find('.videocontrols-preview').length === 0)
 						{
 							$(document).on('mousemove touchmove', seeker_move);
@@ -306,7 +324,7 @@
 					if (e.pageX < minX || e.pageX > maxX || e.pageY < minY || e.pageY > maxY)
 					{
 						$(document).off('mousemove touchmove', seeker_move);
-	
+
 						$video_parent.find('.videocontrols-preview').remove();
 					}
 
@@ -402,11 +420,6 @@
 				{
 					$video_parent.find('.videocontrols-mute').addClass('vc-icon-volume-mute');
 				}
-
-				if (options.volumechange)
-				{
-					options.volumechange($(this));
-				}
 			}
 
 			$video_parent.find('.videocontrols-mute').on('click', function (e)
@@ -458,6 +471,11 @@
 			function volume_up(e)
 			{
 				$(document).off('mousemove touchmove', volume_move);
+
+				if (options.volumechange)
+				{
+					options.volumechange($(this));
+				}
 			}
 
 			$video_parent.find('.videocontrols-fillscreen').on('click', function (e)
@@ -606,7 +624,7 @@
 			left     = Math.min($video_parent.find('.videocontrols-seeker').width() - (options.preview.width / 2), left);
 			$video_parent.find('.videocontrols-seeker').append('<div class="videocontrols-preview" style="left: ' + (left - (options.preview.width / 2) - 3) + 'px;">' +
 				'			<div class="videocontrols-preview-img">' +
-				'				<span class="videocontrols-img" style="width: ' + options.preview.width + 'px; height: 112px; background: url(\'' + sprite + '\') no-repeat -' + (options.preview.width * factor) + 'px 0px;"></span>' +
+				'				<span class="videocontrols-img" style="width: ' + options.preview.width + 'px; height: ' + options.preview.height + 'px; background: url(\'' + sprite + '\') no-repeat -' + (options.preview.width * factor) + 'px 0px;"></span>' +
 				'				<span class="videocontrols-previewtime">' + secondsToTime(seconds) + '</span>' +
 				'			</div>' +
 				'			<div class="videocontrols-preview-connection" style="margin-left: ' + (position - left - $video_parent.find('.videocontrols-seeker').offset().left + (options.preview.width / 2)) + 'px"></div>' +
@@ -667,10 +685,10 @@
 			{
 				time += ((hours < 10) ? '0' + hours : hours) + ':';
 			}
-		
+
 			time += ((minutes < 10) ? '0' + minutes : minutes) + ':';
 			time += (seconds < 10) ? '0' + seconds : seconds;
-		
+
 			return time;
 		}
 	};
