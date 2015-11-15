@@ -11,13 +11,13 @@
     display: inline-block;
     width: 20px;
     height: 20px;
-    background-image: url(../img/videocontrols444444.png);
+    background-image: url(videocontrols444444.png);
     background-repeat: no-repeat;
 }
 
 [class*="vc-icon-"]:hover
 {
-    background-image: url(../img/videocontrols777777.png);
+    background-image: url(videocontrols777777.png);
 }
 
 .vc-icon-play
