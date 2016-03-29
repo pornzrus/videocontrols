@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.6
+ * VideoControls v1.6.1
  *
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
@@ -96,7 +96,7 @@
             $video_parent.parent().find('.vc-player').addClass('hover');
             $video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').addClass('light');
 
-            if (!$.isEmptyObject(options.preview)) {
+            if (!$.isEmptyObject(options.preview) && $video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').length > 0) {
                 displayPreview($video_parent.find('.videocontrols-tag[tag="' + seconds + '"]').offset().left);
             }
 
@@ -275,7 +275,7 @@
                 }
             });
 
-            $video_parent.find('.videocontrols-big-play, .videocontrols-big-pause').on('click', function (e)
+            $video_parent.find('.videocontrols-giant-icon').on('click', function (e)
             {
                 $video_parent.find('.videocontrols-play').trigger('click');
             });
@@ -608,16 +608,18 @@
             var seconds = left / $video_parent.find('.videocontrols-seeker').width() * $video[0].duration;
             var factor  = Math.floor((seconds + 5) / options.preview.step);
             var sprite  = options.preview.sprites[Math.floor(factor / (options.preview.wide / options.preview.width))];
-            factor      = Math.floor(factor % (options.preview.wide / options.preview.width));
-            left        = Math.max(options.preview.width / 2, left);
-            left        = Math.min($video_parent.find('.videocontrols-seeker').width() - (options.preview.width / 2), left);
-            $video_parent.find('.videocontrols-seeker').append('<div class="videocontrols-preview" style="left: ' + (left - (options.preview.width / 2) - 3) + 'px;">' +
-                '            <div class="videocontrols-preview-img">' +
-                '                <span class="videocontrols-img" style="width: ' + options.preview.width + 'px; height: ' + options.preview.height + 'px; background: url(\'' + sprite + '\') no-repeat -' + (options.preview.width * factor) + 'px 0px;"></span>' +
-                '                <span class="videocontrols-previewtime">' + secondsToTime(seconds) + '</span>' +
-                '            </div>' +
-                '            <div class="videocontrols-preview-connection" style="margin-left: ' + (position - left - $video_parent.find('.videocontrols-seeker').offset().left + (options.preview.width / 2)) + 'px"></div>' +
-                '        </div>');
+            if (sprite) {
+                factor = Math.floor(factor % (options.preview.wide / options.preview.width));
+                left   = Math.max(options.preview.width / 2, left);
+                left   = Math.min($video_parent.find('.videocontrols-seeker').width() - (options.preview.width / 2), left);
+                $video_parent.find('.videocontrols-seeker').append('<div class="videocontrols-preview" style="left: ' + (left - (options.preview.width / 2) - 3) + 'px;">' +
+                    '            <div class="videocontrols-preview-img">' +
+                    '                <span class="videocontrols-img" style="width: ' + options.preview.width + 'px; height: ' + options.preview.height + 'px; background: url(\'' + sprite + '\') no-repeat -' + (options.preview.width * factor) + 'px 0px;"></span>' +
+                    '                <span class="videocontrols-previewtime">' + secondsToTime(seconds) + '</span>' +
+                    '            </div>' +
+                    '            <div class="videocontrols-preview-connection" style="margin-left: ' + (position - left - $video_parent.find('.videocontrols-seeker').offset().left + (options.preview.width / 2)) + 'px"></div>' +
+                    '        </div>');
+            }
         }
 
         function getClientX(e)
