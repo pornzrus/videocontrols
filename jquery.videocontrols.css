@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.6
+ * VideoControls v1.6.2
  *
  * Copyright 2015 pornR us
  * Released under the GPLv2 license
@@ -120,7 +120,7 @@
 {
     background : rgba(0,0,0,0.7);
     width: calc(100% + 1px);
-    height : calc(100% - 28px);
+    height : calc(100% - 26px);
     position : absolute;
     top : 0;
     left : 0;
