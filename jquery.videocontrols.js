@@ -1,5 +1,5 @@
 /*!
- * VideoControls v1.6.1
+ * VideoControls v1.6.2
  *
  * Copyright 2014 pornR us
  * Released under the GPLv2 license
